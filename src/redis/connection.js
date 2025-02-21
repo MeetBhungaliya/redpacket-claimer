@@ -1,10 +1,10 @@
 import Redis from "ioredis";
 
 const redisClient = new Redis({
-  username: "default",
-  host: "redis-13559.c264.ap-south-1-1.ec2.redns.redis-cloud.com",
-  password: "Rxe31KLl35zg43LgReGRNs887wVSsAmN",
-  port: 13559,
+  username: process.env.NEXT_PUBLIC_REDIS_USERNAME,
+  host: process.env.NEXT_PUBLIC_REDIS_URL,
+  password: process.env.NEXT_PUBLIC_REDIS_PASSWORD,
+  port: +process.env.NEXT_PUBLIC_REDIS_PORT,
 
   maxRetriesPerRequest: null,
   retryStrategy: (times) => Math.min(times * 50, 2000),
