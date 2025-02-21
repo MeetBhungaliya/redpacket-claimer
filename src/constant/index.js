@@ -1,0 +1,1 @@
+export const QUEUE_NAME = 'RED_PACKET_CODE'

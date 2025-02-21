@@ -1,0 +1,44 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  name        String    @unique
+  fingerprint String    @unique
+  accounts    Account[]
+  created_at  DateTime  @default(now()) @db.Date
+  updated_at  DateTime  @updatedAt @db.Date
+  deleted_at  DateTime? @db.Date
+}
+
+model Account {
+  id          String      @id @default(auto()) @map("_id") @db.ObjectId
+  label       String
+  data        AccountData
+  fingerprint String
+  user        User        @relation(fields: [fingerprint], references: [fingerprint])
+  created_at  DateTime    @default(now()) @db.Date
+  updated_at  DateTime    @updatedAt @db.Date
+  deleted_at  DateTime?   @db.Date
+}
+
+type AccountData {
+  url     String
+  headers Headers
+}
+
+type Headers {
+  bnc-uuid     String
+  csrftoken    String
+  device-info  String
+  fvideo-id    String
+  fvideo-token String
+  cookie       String
+  clienttype   String
+}
