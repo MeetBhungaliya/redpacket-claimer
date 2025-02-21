@@ -6,7 +6,7 @@ const nextConfig = {
     REDIS_USERNAME: "default",
     REDIS_URL: "redis-13559.c264.ap-south-1-1.ec2.redns.redis-cloud.com",
     REDIS_PASSWORD: "Rxe31KLl35zg43LgReGRNs887wVSsAmN",
-    REDIS_PORT: "13559",
+    REDIS_PORT: 13559,
   },
 };
 

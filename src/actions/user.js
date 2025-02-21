@@ -18,8 +18,6 @@ const getUser = async (data) => {
 const isUsernameAvailabel = async (data) => {
   const { name } = data;
 
-  console.log("fetching", data.name);
-
   try {
     const user = await prisma.user.findFirst({
       where: { name },

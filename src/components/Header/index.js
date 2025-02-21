@@ -1,6 +1,6 @@
 "use client";
 
-import { getUser, isUsernameAvailabel } from "@/actions/user";
+import { createUser, getUser, isUsernameAvailabel } from "@/actions/user";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -70,7 +70,6 @@ const Header = () => {
         createUser({ name: username, fingerprint: visitorId }),
       onSuccess: (data) => {
         setCreateUserModal(false);
-        queryClient.setQueryData(["user", visitorId], data);
       },
     }
   );
