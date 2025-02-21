@@ -4,6 +4,7 @@ import { QUEUE_NAME } from "@/constant";
 import { prisma } from "@/lib/prisma";
 import { Worker } from "bullmq";
 import redisClient from "./connection";
+import axios from "axios";
 
 const CACHE_KEY = "cached_accounts";
 const CACHE_TTL = 60 * 60 * 24;
@@ -36,7 +37,6 @@ const initWorker = () => {
 
       await Promise.all(
         accounts.map((account) => {
-          console.log(account.data.url);
           return axios({
             method: "POST",
             url: account.data.url,
