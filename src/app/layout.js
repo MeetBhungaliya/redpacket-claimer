@@ -4,6 +4,7 @@ import { FingerprintProvider } from "@/context/Fingerprint";
 import QueryProvider from "@/context/QueryProvider";
 import { Poppins } from "next/font/google";
 import "./globals.css";
+import { initWorker } from "@/redis";
 
 const poppins = Poppins({
   weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
@@ -16,6 +17,7 @@ export const metadata = {
 };
 
 export default async function RootLayout({ children }) {
+  initWorker();
   return (
     <html lang="en">
       <body

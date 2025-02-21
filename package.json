@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
-    "start": "concurrently \"next start\" \"node worker.js\"",
+    "start": "next start",
     "lint": "next lint",
     "worker": "node worker.js",
     "postinstall": "prisma generate"
