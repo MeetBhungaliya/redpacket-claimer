@@ -5,9 +5,10 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
-    "start": "next start",
+    "start": "concurrently \"next start\" \"node worker.js\"",
+    "lint": "next lint",
     "worker": "node worker.js",
-    "lint": "next lint"
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@faker-js/faker": "^9.4.0",
