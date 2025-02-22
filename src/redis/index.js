@@ -10,10 +10,10 @@ const CACHE_KEY = "cached_accounts";
 const CACHE_TTL = 60 * 60 * 24;
 
 const fetchAccounts = async () => {
-  const cachedUsers = await redisClient.get(CACHE_KEY);
-  if (cachedUsers) {
+  const cachedAccounts = await redisClient.get(CACHE_KEY);
+  if (cachedAccounts) {
     console.log("⚡ Using cached accounts data");
-    return JSON.parse(cachedUsers);
+    return JSON.parse(cachedAccounts);
   }
 
   console.log("📥 Fetching accounts from DB...");
@@ -23,10 +23,46 @@ const fetchAccounts = async () => {
   return accounts;
 };
 
+const checkCode = async (grabCode) => {
+  try {
+    const accounts = await fetchAccounts();
+
+    const recentAccount = accounts[0];
+
+    const data = {
+      grabCode,
+      channel: "DEFAULT",
+    };
+
+    const checkCodeURL = `${recentAccount.data.url
+      .split("/")
+      .splice(0, recentAccount.data.url.split("/").length - 1)
+      .join("/")}/query`;
+
+    const res = await axios({
+      method: "POST",
+      url: checkCodeURL,
+      headers: recentAccount.data.headers,
+      data: JSON.stringify(data),
+    });
+
+    return res.data.success;
+  } catch (error) {
+    return false;
+  }
+};
+
 const initWorker = () => {
   const worker = new Worker(
     QUEUE_NAME,
     async (job) => {
+      const isValidCode = await checkCode(job.data);
+
+      if (!isValidCode) {
+        console.log(`Invalid code: ${job.data}. Removing from queue.`);
+        return Promise.resolve();
+      }
+
       const data = {
         grabCode: job.data,
         channel: "DEFAULT",
@@ -35,18 +71,25 @@ const initWorker = () => {
 
       const accounts = await fetchAccounts();
 
-      await Promise.all(
-        accounts.map((account) => {
-          return axios({
+      const res = await Promise.allSettled(
+        accounts.map(async (account) => {
+          return await axios({
             method: "POST",
             url: account.data.url,
             headers: account.data.headers,
-            data,
+            data: JSON.stringify(data),
           });
         })
       );
+
+      res.forEach((r) => console.log(r.value?.data?.message));
     },
-    { connection: redisClient, concurrency: 2 }
+    {
+      connection: redisClient,
+      lockDuration: 5000,
+      removeOnComplete: { age: 3600, count: 1000 },
+      removeOnFail: { age: 86400, count: 1000 },
+    }
   );
 
   worker.on("completed", (job) => console.log(`✅ Job ${job.id} finished`));

@@ -3,8 +3,8 @@ import { Toaster } from "@/components/ui/sonner";
 import { FingerprintProvider } from "@/context/Fingerprint";
 import QueryProvider from "@/context/QueryProvider";
 import { Poppins } from "next/font/google";
-import "./globals.css";
 import { initWorker } from "@/redis";
+import "./globals.css";
 
 const poppins = Poppins({
   weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
