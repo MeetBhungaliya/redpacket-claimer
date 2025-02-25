@@ -34,20 +34,18 @@ const checkCode = async (grabCode) => {
       channel: "DEFAULT",
     };
 
-    const checkCodeURL = `${recentAccount.data.url
-      .split("/")
-      .splice(0, recentAccount.data.url.split("/").length - 1)
-      .join("/")}/query`;
+    const checkCodeURL = recentAccount.data.url.replace(/grabV2$/, "query");
 
     const res = await axios({
       method: "POST",
       url: checkCodeURL,
       headers: recentAccount.data.headers,
-      data: JSON.stringify(data),
+      data,
     });
 
     return res.data.success;
   } catch (error) {
+    console.log(error, "ERRR");
     return false;
   }
 };
@@ -77,12 +75,10 @@ const initWorker = () => {
             method: "POST",
             url: account.data.url,
             headers: account.data.headers,
-            data: JSON.stringify(data),
+            data,
           });
         })
       );
-
-      res.forEach((r) => console.log(r.value?.data?.message));
     },
     {
       connection: redisClient,
