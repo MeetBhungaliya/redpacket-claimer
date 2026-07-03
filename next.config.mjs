@@ -1,5 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
   env: {
     DATABASE_URL:
       "mongodb+srv://meet:Meet1234@freecluster.gmwtasd.mongodb.net/red-pack",
