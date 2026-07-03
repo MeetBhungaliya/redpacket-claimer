@@ -2,11 +2,11 @@
 const nextConfig = {
   env: {
     DATABASE_URL:
-      "mongodb+srv://meet:e85e4428fef256f82320fb11cc3769bebd69d317f4a77bdb46b05e4de34be9fa13a668f9973a0efdb4eb7aed5b35b2c5@clust.29ck8.mongodb.net/red-pack",
+      "mongodb+srv://meet:Meet1234@freecluster.gmwtasd.mongodb.net/red-pack",
     REDIS_USERNAME: "default",
-    REDIS_URL: "redis-13559.c264.ap-south-1-1.ec2.redns.redis-cloud.com",
-    REDIS_PASSWORD: "Rxe31KLl35zg43LgReGRNs887wVSsAmN",
-    REDIS_PORT: 13559,
+    REDIS_URL: "redis-13235.c90.us-east-1-3.ec2.cloud.redislabs.com",
+    REDIS_PASSWORD: "IDO2wPE6iBFuSrbi5bVzkTyAESfjGYoh",
+    REDIS_PORT: 13235,
   },
 };
 
