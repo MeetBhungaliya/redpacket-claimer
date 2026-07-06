@@ -50,7 +50,7 @@ const checkCode = async (grabCode) => {
   }
 };
 
-const initWorker = () => {
+const initWorker = async () => {
   const worker = new Worker(
     QUEUE_NAME,
     async (job) => {
