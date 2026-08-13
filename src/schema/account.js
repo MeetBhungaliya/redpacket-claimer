@@ -5,17 +5,7 @@ const addAccountSchema = z.object({
   curl: z.string().min(1, { message: "CURL is required" }),
 });
 
-const headerSchema = z.object({
-  "bnc-uuid": z
-    .string({ message: "bnc-uuid is missing" })
-    .uuid({ message: "bnc-uuid is invalid" }),
-  csrftoken: z.string({ message: "csrftoken is missing" }),
-  "device-info": z.string({ message: "device-info is missing" }),
-  "fvideo-id": z.string({ message: "fvideo-id is missing" }),
-  "fvideo-token": z.string({ message: "fvideo-token is missing" }),
-  cookie: z.string({ message: "cookie is missing" }),
-  clienttype: z.string({ message: "clienttype is missing" }),
-});
+const headerSchema = z.record(z.string(), z.any());
 
 const addTelegramAccountSchema = z.object({
   number: z.string().regex(/^\+91\d{10}$/, {

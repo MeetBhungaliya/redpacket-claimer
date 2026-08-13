@@ -1,7 +1,5 @@
-"use client";
-
 import FingerprintJS from "@fingerprintjs/fingerprintjs";
-import { createContext, use, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 
 const DEFAULT_STATE = { loading: true, data: null };
 
@@ -34,7 +32,7 @@ export function FingerprintProvider({ children }) {
 }
 
 export function useVisitorId() {
-  const context = use(FingerprintContext);
+  const context = useContext(FingerprintContext);
   if (!context) {
     throw new Error("useVisitorId must be used within an FingerprintProvider");
   }

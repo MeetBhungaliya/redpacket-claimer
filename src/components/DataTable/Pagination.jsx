@@ -12,61 +12,12 @@ import {
   ChevronsLeft,
   ChevronsRight,
 } from "lucide-react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect } from "react";
-import { useStep } from "usehooks-ts";
 
-const Pagination = ({ table, totalRecords }) => {
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
+const Pagination = ({ table, totalRecords, page = 1, limit = 10, onPageChange, onLimitChange }) => {
+  const totalPages = Math.ceil(totalRecords / limit) || 1;
 
-  const page = +searchParams.get("page") || 1;
-  const limit = +searchParams.get("limit") || 10;
-  const totalPages = Math.ceil(totalRecords / limit);
-
-  const [, helpers] = useStep(totalPages);
-
-  useEffect(() => {
-    helpers.setStep(page);
-
-    if (!searchParams.has("page") && !searchParams.has("limit")) {
-      const params = new URLSearchParams(searchParams.toString());
-      params.set("page", 1);
-      params.set("limit", 10);
-      return router.push(pathname + "?" + params.toString());
-    }
-
-    if (!searchParams.has("page")) {
-      return updateQueryString("page", 1);
-    }
-
-    if (!searchParams.has("limit")) {
-      return updateQueryString("limit", 10);
-    }
-
-    if (isNaN(+searchParams.get("page"))) {
-      return updateQueryString("page", 1);
-    }
-    if (isNaN(+searchParams.get("limit"))) {
-      return updateQueryString("limit", 10);
-    }
-  }, [page, limit]);
-
-  const updateQueryString = useCallback(
-    (name, value) => {
-      const params = new URLSearchParams(searchParams.toString());
-      params.set(name, value);
-
-      return router.push(pathname + "?" + params.toString());
-    },
-    [searchParams]
-  );
-
-  const handleChangePage = (page) => {
-    helpers.setStep(page);
-    updateQueryString("page", page);
-  };
+  const canGoPrev = page > 1;
+  const canGoNext = page < totalPages;
 
   return (
     <div className="flex items-center justify-between px-2">
@@ -79,7 +30,7 @@ const Pagination = ({ table, totalRecords }) => {
           <p className="text-sm font-medium">Rows per page</p>
           <Select
             value={limit.toString()}
-            onValueChange={(value) => updateQueryString("limit", value)}
+            onValueChange={(val) => onLimitChange && onLimitChange(Number(val))}
           >
             <SelectTrigger className="h-8 w-[70px]">
               <SelectValue placeholder={limit.toString()} />
@@ -100,8 +51,8 @@ const Pagination = ({ table, totalRecords }) => {
           <Button
             variant="outline"
             className="hidden h-8 w-8 p-0 lg:flex"
-            onClick={() => handleChangePage(1)}
-            disabled={!helpers.canGoToPrevStep}
+            onClick={() => onPageChange && onPageChange(1)}
+            disabled={!canGoPrev}
           >
             <span className="sr-only">Go to first page</span>
             <ChevronsLeft />
@@ -109,8 +60,8 @@ const Pagination = ({ table, totalRecords }) => {
           <Button
             variant="outline"
             className="h-8 w-8 p-0"
-            onClick={() => handleChangePage(page - 1)}
-            disabled={!helpers.canGoToPrevStep}
+            onClick={() => onPageChange && onPageChange(page - 1)}
+            disabled={!canGoPrev}
           >
             <span className="sr-only">Go to previous page</span>
             <ChevronLeft />
@@ -118,8 +69,8 @@ const Pagination = ({ table, totalRecords }) => {
           <Button
             variant="outline"
             className="h-8 w-8 p-0"
-            onClick={() => handleChangePage(page + 1)}
-            disabled={!helpers.canGoToNextStep}
+            onClick={() => onPageChange && onPageChange(page + 1)}
+            disabled={!canGoNext}
           >
             <span className="sr-only">Go to next page</span>
             <ChevronRight />
@@ -127,8 +78,8 @@ const Pagination = ({ table, totalRecords }) => {
           <Button
             variant="outline"
             className="hidden h-8 w-8 p-0 lg:flex"
-            onClick={() => handleChangePage(totalPages)}
-            disabled={!helpers.canGoToNextStep}
+            onClick={() => onPageChange && onPageChange(totalPages)}
+            disabled={!canGoNext}
           >
             <span className="sr-only">Go to last page</span>
             <ChevronsRight />

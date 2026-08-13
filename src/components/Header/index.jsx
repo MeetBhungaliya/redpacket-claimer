@@ -1,6 +1,4 @@
-"use client";
-
-import { createUser, getUser, isUsernameAvailabel } from "@/actions/user";
+import { checkUsernameAvailable, createUser, fetchUser } from "@/api/client";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -47,7 +45,7 @@ const Header = () => {
     isFetchedAfterMount,
   } = useQuery({
     queryKey: ["user", visitorId],
-    queryFn: () => getUser({ fingerprint: visitorId }),
+    queryFn: () => fetchUser(visitorId),
     enabled: Boolean(visitorId),
   });
 
@@ -62,22 +60,25 @@ const Header = () => {
     if (isFetchedAfterMount && !Boolean(user)) {
       setCreateUserModal(true);
     }
-  }, [isFetchedAfterMount]);
+  }, [isFetchedAfterMount, user]);
 
-  const { mutate: createUserMutation, isLoading: isCreatingUser } = useMutation(
+  const { mutate: createUserMutation, isPending: isCreatingUser } = useMutation(
     {
       mutationFn: (username) =>
         createUser({ name: username, fingerprint: visitorId }),
-      onSuccess: (data) => {
+      onSuccess: () => {
         setCreateUserModal(false);
+        queryClient.invalidateQueries({ queryKey: ["user", visitorId] });
       },
     }
   );
 
+  const usernameValue = form.watch("username");
+
   const { data: isUsernameAvailable, isLoading: isUsernameLoading } = useQuery({
-    queryKey: ["usernameAvailability", form.watch("username")],
-    queryFn: () => isUsernameAvailabel({ name: form.watch("username") }),
-    enabled: form.watch("username").length >= 2,
+    queryKey: ["usernameAvailability", usernameValue],
+    queryFn: () => checkUsernameAvailable(usernameValue),
+    enabled: usernameValue.length >= 2,
     gcTime: 0,
   });
 

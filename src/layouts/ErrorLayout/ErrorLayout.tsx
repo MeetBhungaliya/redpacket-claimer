@@ -1,15 +1,8 @@
-import Link from "next/link";
-
-export const metadata = {
-  title: "Something is wrong",
-  description: "Something is wrong",
-};
-
-export default function ErrorLayout({ children }) {
+export default function ErrorLayout({ children }: { children: React.ReactNode }) {
   return (
     <div>
       {children}
-      <Link href="/">Go back to home</Link>
+      <a href="/">Go back to home</a>
     </div>
   );
 }

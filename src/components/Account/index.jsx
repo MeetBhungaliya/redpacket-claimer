@@ -1,6 +1,4 @@
-"use client";
-
-import { createAccount } from "@/actions/account";
+import { convertCurl, createAccount } from "@/api/client";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -21,9 +19,9 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { CURL_PLACEHOLDER } from "@/constant/placeholder";
 import { useVisitorId } from "@/context/Fingerprint";
-import { getHeaders, getURL } from "@/lib/utils";
-import { addAccountSchema, headerSchema } from "@/schema/account";
+import { addAccountSchema } from "@/schema/account";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { useBoolean } from "usehooks-ts";
@@ -31,6 +29,7 @@ import { useBoolean } from "usehooks-ts";
 const Account = () => {
   const visitorId = useVisitorId();
   const { value, setValue, setFalse } = useBoolean(false);
+  const queryClient = useQueryClient();
 
   const form = useForm({
     resolver: zodResolver(addAccountSchema),
@@ -44,44 +43,32 @@ const Account = () => {
     if (!visitorId.data) return toast.error("Visitor id not found");
 
     try {
-      const [url, headersResult] = await Promise.all([
-        getURL(values.curl),
-        getHeaders(values.curl),
-      ]);
+      const parsedCurl = await convertCurl(values.curl);
 
-      const headers = headerSchema.safeParse(headersResult);
-
-      if (!headers.success) {
-        const error =
-          JSON.parse(headers.error)?.[0]?.message ||
-          "Unknown error parsing headers";
-
-        return form.setError("curl", { message: error });
+      if (!parsedCurl || parsedCurl.error) {
+        return form.setError("curl", { message: parsedCurl?.error || "Invalid CURL" });
       }
 
-      const data = {
+      const accountPayload = {
         label: values.label,
-        data: { url, headers: headers.data },
+        data: parsedCurl,
         fingerprint: visitorId.data,
       };
 
       try {
-        const res = await createAccount(data);
-
-        if (res instanceof Error) throw res;
-
+        const res = await createAccount(accountPayload);
         if (res) {
           toast.success("Account added successfully");
+          queryClient.invalidateQueries({ queryKey: ["accounts"] });
           handleClose();
         }
       } catch (error) {
-        console.log(error?.message);
-        if (error instanceof Error)
-          return toast.error(error?.message || "Something went wrong");
-        console.log(error);
+        const errMsg = error?.response?.data?.message || error?.message || "Something went wrong";
+        toast.error(errMsg);
       }
     } catch (error) {
-      form.setError("curl", { message: "Invalid CURL" });
+      const errMsg = error?.response?.data?.error || "Invalid CURL command";
+      form.setError("curl", { message: errMsg });
     }
   };
 
@@ -143,7 +130,7 @@ const Account = () => {
                     <FormLabel>
                       CURL&nbsp;
                       <small className="font-semibold">
-                        (Copy as fetch (Node.js))
+                        (Raw cURL command)
                       </small>
                     </FormLabel>
                     <FormControl>
